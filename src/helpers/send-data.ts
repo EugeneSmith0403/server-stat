@@ -6,7 +6,6 @@ import { Response, Server } from "../enums";
 export const sendData = (data: SendData): Promise<ServerResponse | Error> => {
   const dataObj = data.convertToRequest();
   let interval = null;
-  const statistic = new Statistic();
 
   return new Promise((resolve, reject) => {
     const options = {
@@ -20,7 +19,6 @@ export const sendData = (data: SendData): Promise<ServerResponse | Error> => {
     };
 
     let req: ClientRequest = request(options, (res: IncomingMessage) => {
-      statistic.increaseRequestCommon();
       if (res.statusCode === 500) {
         clearTimeout(interval);
         reject(`${res.statusCode} error!`);
@@ -33,13 +31,11 @@ export const sendData = (data: SendData): Promise<ServerResponse | Error> => {
     });
 
     interval = setTimeout(function () {
-      statistic.increaseRequestCommon();
       clearTimeout(interval);
       resolve(Response.Aborted);
     }, 10000);
 
     req.once("error", (error: Error) => {
-      statistic.increaseRequestCommon();
       clearTimeout(interval);
       reject(error);
     });

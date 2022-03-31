@@ -2,12 +2,12 @@ import { ServerResponse } from "http";
 import { Response } from "../enums";
 import { wait } from "./wait";
 
-export const _error500Handler = (response: ServerResponse): void => {
+export const error500Handler = (response: ServerResponse): void => {
   response.statusCode = 500;
   response.end();
 };
 
-export const _successHandler = (
+export const successHandler = (
   response: ServerResponse,
   result: Response
 ): void => {

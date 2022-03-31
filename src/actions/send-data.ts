@@ -19,12 +19,13 @@ export const sendDataAction = async (
     Logger.info("start sending data!");
 
     const result = (await sendData(model)) as Response;
-
-    Logger.info(`receive data: ${JSON.stringify(result)}`);
+    statistic.increaseRequestCommon();
+    Logger.info(`response data: ${JSON.stringify(result)}`);
 
     const statMethod = clientResponseHandlerMap.get(result);
     statistic[statMethod]();
   } catch (e) {
+    statistic.increaseRequestCommon();
     serverNotWorkingHandler(e);
 
     const convertedData = new SendData(
@@ -46,6 +47,6 @@ export const sendDataAction = async (
       convertedData.deliveryAttempt
     );
 
-    Logger.info(`retry received data`);
+    Logger.info(`retry response`);
   }
 };
