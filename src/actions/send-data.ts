@@ -1,12 +1,20 @@
 import { Logger, SendData, Statistic } from "../classes";
-import { sendData, serverNotWorkingHandler } from "../helpers";
+import { retry, sendData, serverNotWorkingHandler } from "../helpers";
 import { Response } from "../enums";
 import { clientResponseHandlerMap } from "../maps";
-import { retrySendDataAction } from "./retry-send-data";
+import { ServerResponse } from "../types";
 
-export const sendDataAction = async (data: SendData) => {
+export const sendDataAction = async (
+  data: SendData,
+  deliveryAttempt?: number
+) => {
   const statistic = new Statistic();
   const model = data.createNewModel();
+
+  if (deliveryAttempt) {
+    model.deliveryAttempt = deliveryAttempt;
+  }
+
   try {
     Logger.info("start sending data!");
 
@@ -29,12 +37,15 @@ export const sendDataAction = async (data: SendData) => {
     Logger.info(e);
 
     statistic.request500RequestCount();
-    convertedData.deliveryAttempt++;
+    ++convertedData.deliveryAttempt;
 
     Logger.info("retry sending data!");
 
-    const res = await retrySendDataAction(convertedData);
+    await retry<ServerResponse | Error>(
+      () => sendDataAction(convertedData, convertedData.deliveryAttempt),
+      convertedData.deliveryAttempt
+    );
 
-    Logger.info(`receive data: ${JSON.stringify(res)}`);
+    Logger.info(`retry received data`);
   }
 };

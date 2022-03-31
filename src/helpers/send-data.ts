@@ -1,11 +1,12 @@
 import { ClientRequest, IncomingMessage, request } from "http";
-import { SendData } from "../classes";
+import { SendData, Statistic } from "../classes";
 import { ServerResponse } from "../types";
 import { Response, Server } from "../enums";
 
 export const sendData = (data: SendData): Promise<ServerResponse | Error> => {
   const dataObj = data.convertToRequest();
   let interval = null;
+  const statistic = new Statistic();
 
   return new Promise((resolve, reject) => {
     const options = {
@@ -17,6 +18,8 @@ export const sendData = (data: SendData): Promise<ServerResponse | Error> => {
         "Content-Type": "application/json",
       },
     };
+
+    statistic.increaseRequestCommon();
 
     let req: ClientRequest = request(options, (res: IncomingMessage) => {
       if (res.statusCode === 500) {

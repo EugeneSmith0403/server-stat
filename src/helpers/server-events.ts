@@ -12,8 +12,8 @@ export const makeServerResponseEvents = (
   });
 
   request.on("end", () => {
-    Logger.log(data);
     const obj = JSON.parse(JSON.parse(data));
+    Logger.log(data);
     cb(obj);
   });
 };
