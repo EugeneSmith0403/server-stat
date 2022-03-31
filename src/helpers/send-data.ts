@@ -19,9 +19,8 @@ export const sendData = (data: SendData): Promise<ServerResponse | Error> => {
       },
     };
 
-    statistic.increaseRequestCommon();
-
     let req: ClientRequest = request(options, (res: IncomingMessage) => {
+      statistic.increaseRequestCommon();
       if (res.statusCode === 500) {
         clearTimeout(interval);
         reject(`${res.statusCode} error!`);
@@ -34,11 +33,13 @@ export const sendData = (data: SendData): Promise<ServerResponse | Error> => {
     });
 
     interval = setTimeout(function () {
+      statistic.increaseRequestCommon();
       clearTimeout(interval);
       resolve(Response.Aborted);
     }, 10000);
 
     req.once("error", (error: Error) => {
+      statistic.increaseRequestCommon();
       clearTimeout(interval);
       reject(error);
     });
