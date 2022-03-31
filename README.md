@@ -1,4 +1,5 @@
 # Server Stat
+Project consists typescript dependencies.
 
 ##Steps:
 
